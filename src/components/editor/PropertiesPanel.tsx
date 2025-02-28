@@ -3,7 +3,13 @@
 import React from 'react';
 import { useEditorStore } from '@/store/editorStore';
 import { ElementType } from '@/types/wireframe';
-import { TrashIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
+import { 
+  TrashIcon, 
+  ClipboardDocumentIcon, 
+  XMarkIcon,
+  ArrowsPointingOutIcon,
+  EyeIcon
+} from '@heroicons/react/24/outline';
 
 // Common properties for all elements
 const CommonProperties: React.FC = () => {
@@ -24,88 +30,114 @@ const CommonProperties: React.FC = () => {
   
   return (
     <div className="space-y-4">
+      {/* Quick Actions */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={handleDuplicateElement}
+          className="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded border border-border bg-card hover:bg-secondary transition-colors"
+          title="Duplicate element"
+        >
+          <ClipboardDocumentIcon className="w-3.5 h-3.5 mr-1.5" />
+          Duplicate
+        </button>
+        
+        <div className="flex space-x-1">
+          <button 
+            className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary rounded transition-colors"
+            title="Hide element (Coming soon)"
+          >
+            <EyeIcon className="w-4 h-4" />
+          </button>
+          
+          <button
+            onClick={handleRemoveElement}
+            className="p-1.5 text-destructive hover:bg-destructive/10 rounded transition-colors"
+            title="Delete element"
+          >
+            <TrashIcon className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+      
       {/* Element Type */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Element Type</label>
-        <div className="text-sm bg-gray-100 py-1 px-2 rounded capitalize">{selectedElement.type}</div>
+        <label className="block text-xs font-medium text-muted-foreground mb-1.5">Element Type</label>
+        <div className="text-sm py-1 px-2 bg-secondary rounded-md capitalize font-medium">{selectedElement.type}</div>
+      </div>
+      
+      {/* Dimensions */}
+      <div>
+        <div className="flex items-center justify-between mb-1.5">
+          <label className="block text-xs font-medium text-muted-foreground">Dimensions</label>
+          <button className="p-1 text-xs text-muted-foreground hover:text-foreground" title="Toggle lock aspect ratio (Coming soon)">
+            <ArrowsPointingOutIcon className="w-3.5 h-3.5" />
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-2 text-xs text-muted-foreground">W</span>
+              <input
+                type="number"
+                value={selectedElement.size?.width || 0}
+                onChange={(e) => resizeElement(selectedElement.id, { 
+                  width: parseInt(e.target.value) || 0,
+                  height: selectedElement.size?.height || 0 
+                })}
+                className="w-full border border-input rounded py-1 pl-7 pr-2 text-sm bg-card"
+              />
+            </div>
+          </div>
+          <div>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-2 text-xs text-muted-foreground">H</span>
+              <input
+                type="number"
+                value={selectedElement.size?.height || 0}
+                onChange={(e) => resizeElement(selectedElement.id, { 
+                  width: selectedElement.size?.width || 0,
+                  height: parseInt(e.target.value) || 0 
+                })}
+                className="w-full border border-input rounded py-1 pl-7 pr-2 text-sm bg-card"
+              />
+            </div>
+          </div>
+        </div>
       </div>
       
       {/* Position */}
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">X Position</label>
-          <input
-            type="number"
-            value={selectedElement.position.x}
-            onChange={(e) => moveElement(selectedElement.id, { 
-              ...selectedElement.position, 
-              x: parseInt(e.target.value) || 0 
-            })}
-            className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-          />
+      <div>
+        <label className="block text-xs font-medium text-muted-foreground mb-1.5">Position</label>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-2 text-xs text-muted-foreground">X</span>
+              <input
+                type="number"
+                value={selectedElement.position.x}
+                onChange={(e) => moveElement(selectedElement.id, { 
+                  ...selectedElement.position, 
+                  x: parseInt(e.target.value) || 0 
+                })}
+                className="w-full border border-input rounded py-1 pl-7 pr-2 text-sm bg-card"
+              />
+            </div>
+          </div>
+          <div>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-2 text-xs text-muted-foreground">Y</span>
+              <input
+                type="number"
+                value={selectedElement.position.y}
+                onChange={(e) => moveElement(selectedElement.id, { 
+                  ...selectedElement.position, 
+                  y: parseInt(e.target.value) || 0 
+                })}
+                className="w-full border border-input rounded py-1 pl-7 pr-2 text-sm bg-card"
+              />
+            </div>
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Y Position</label>
-          <input
-            type="number"
-            value={selectedElement.position.y}
-            onChange={(e) => moveElement(selectedElement.id, { 
-              ...selectedElement.position, 
-              y: parseInt(e.target.value) || 0 
-            })}
-            className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-          />
-        </div>
-      </div>
-      
-      {/* Size */}
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Width</label>
-          <input
-            type="number"
-            value={selectedElement.size.width}
-            onChange={(e) => resizeElement(selectedElement.id, { 
-              ...selectedElement.size, 
-              width: parseInt(e.target.value) || 20 
-            })}
-            min={20}
-            className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Height</label>
-          <input
-            type="number"
-            value={selectedElement.size.height}
-            onChange={(e) => resizeElement(selectedElement.id, { 
-              ...selectedElement.size, 
-              height: parseInt(e.target.value) || 20 
-            })}
-            min={20}
-            className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-          />
-        </div>
-      </div>
-      
-      {/* Actions */}
-      <div className="flex space-x-2 pt-2 border-t border-gray-200">
-        <button
-          type="button"
-          onClick={handleDuplicateElement}
-          className="flex items-center justify-center px-3 py-1.5 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200"
-        >
-          <ClipboardDocumentIcon className="w-4 h-4 mr-1" />
-          Duplicate
-        </button>
-        <button
-          type="button"
-          onClick={handleRemoveElement}
-          className="flex items-center justify-center px-3 py-1.5 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200"
-        >
-          <TrashIcon className="w-4 h-4 mr-1" />
-          Delete
-        </button>
       </div>
     </div>
   );
@@ -235,45 +267,62 @@ const PROPERTY_EDITORS: Partial<Record<ElementType, React.ComponentType>> = {
   // Add more specialized property editors for other element types
 };
 
+// Main properties panel component
 export const PropertiesPanel: React.FC = () => {
-  const { selectedElementId, project } = useEditorStore();
+  // Call all hooks at the top level, unconditionally
+  const { selectedElementId, selectElement, project } = useEditorStore();
   
-  const selectedElement = project.elements.find(el => el.id === selectedElementId);
+  // Mapping of element types to their specific property components
+  const propertyComponentMap: Partial<Record<ElementType, React.ComponentType>> = {
+    'text': TextProperties,
+    'button': ButtonProperties,
+    // Add more mappings as needed
+  };
   
-  if (!selectedElement) {
+  // No element selected
+  if (!selectedElementId) {
     return (
-      <div className="bg-white border-l border-gray-200 w-64 h-full overflow-y-auto">
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold">Properties</h2>
+      <aside className="bg-card border-l border-border w-72 h-full overflow-y-auto flex flex-col">
+        <div className="p-4 flex items-center justify-center flex-1">
+          <div className="text-center text-muted-foreground">
+            <p>No element selected</p>
+            <p className="text-xs mt-1">Select an element to edit its properties</p>
+          </div>
         </div>
-        <div className="p-4 text-sm text-gray-500 text-center">
-          Select an element to edit its properties
-        </div>
-      </div>
+      </aside>
     );
   }
   
-  const ElementProperties = PROPERTY_EDITORS[selectedElement.type];
+  // Find the selected element
+  const selectedElement = project.elements.find(el => el.id === selectedElementId);
+  
+  if (!selectedElement) {
+    return null;
+  }
+  
+  // Get the specific property component for this element type
+  const SpecificProperties = propertyComponentMap[selectedElement.type];
   
   return (
-    <div className="bg-white border-l border-gray-200 w-64 h-full overflow-y-auto">
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="text-lg font-semibold">Properties</h2>
+    <aside className="bg-card border-l border-border w-72 h-full overflow-y-auto flex flex-col">
+      <div className="p-3 border-b border-border flex items-center justify-between">
+        <h2 className="font-medium text-sm">Properties</h2>
+        <button 
+          onClick={() => selectElement(null)}
+          className="p-1 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-full transition-colors"
+          title="Close panel"
+        >
+          <XMarkIcon className="w-4 h-4" />
+        </button>
       </div>
       
-      <div className="p-4 space-y-6">
+      <div className="p-4 space-y-5 flex-1">
+        {/* Common properties for all elements */}
         <CommonProperties />
         
         {/* Element-specific properties */}
-        <div className="pt-4 border-t border-gray-200">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">Element Properties</h3>
-          {ElementProperties ? <ElementProperties /> : (
-            <div className="text-sm text-gray-500">
-              Basic properties available for this element type
-            </div>
-          )}
-        </div>
+        {SpecificProperties && <SpecificProperties />}
       </div>
-    </div>
+    </aside>
   );
 }; 
