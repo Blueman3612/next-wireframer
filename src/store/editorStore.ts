@@ -1,6 +1,13 @@
 import { create } from 'zustand';
 import { nanoid } from 'nanoid';
-import { ElementType, Position, Size, WireframeElement, WireframeProject } from '../types/wireframe';
+import { 
+  ElementType, 
+  Position, 
+  Size, 
+  WireframeElement, 
+  WireframeProject,
+  ElementProperties 
+} from '../types/wireframe';
 
 interface EditorState {
   // Current project
@@ -18,14 +25,14 @@ interface EditorState {
   selectElement: (id: string | null) => void;
   moveElement: (id: string, position: Position) => void;
   resizeElement: (id: string, size: Size) => void;
-  updateElementProperties: (id: string, properties: Record<string, any>) => void;
+  updateElementProperties: (id: string, properties: ElementProperties) => void;
   setIsDragging: (isDragging: boolean) => void;
   duplicateElement: (id: string) => void;
   clearCanvas: () => void;
 }
 
 // Default properties for different element types
-const getDefaultProperties = (type: ElementType): Record<string, any> => {
+const getDefaultProperties = (type: ElementType): ElementProperties => {
   switch (type) {
     case 'container':
       return { backgroundColor: '#f0f0f0', borderWidth: 1, borderColor: '#ddd', borderStyle: 'solid' };

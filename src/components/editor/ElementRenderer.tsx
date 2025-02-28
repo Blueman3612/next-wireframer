@@ -2,19 +2,31 @@
 
 import React from 'react';
 import { WireframeElement, ElementType } from '@/types/wireframe';
+import Image from 'next/image';
+
+// Define CSS property types
+type TextAlignType = 'left' | 'center' | 'right' | 'justify';
+type ObjectFitType = 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
+type BorderStyleType = 'solid' | 'dashed' | 'dotted' | 'double' | 'none';
+type FontWeightType = 'normal' | 'bold' | 'lighter' | 'bolder' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900';
 
 // Container Element
 const ContainerElement: React.FC<{ element: WireframeElement }> = ({ element }) => {
-  const { backgroundColor = '#ffffff', borderWidth = 0, borderColor = '#000000', borderStyle = 'solid' } = element.properties;
+  const { 
+    backgroundColor = '#ffffff', 
+    borderWidth = 0, 
+    borderColor = '#000000', 
+    borderStyle = 'solid' 
+  } = element.properties;
   
   return (
     <div 
       className="w-full h-full"
       style={{ 
-        backgroundColor, 
-        borderWidth: `${borderWidth}px`, 
-        borderColor, 
-        borderStyle 
+        backgroundColor: backgroundColor as string, 
+        borderWidth: `${Number(borderWidth)}px`, 
+        borderColor: borderColor as string, 
+        borderStyle: borderStyle as BorderStyleType 
       }}
     />
   );
@@ -34,13 +46,13 @@ const TextElement: React.FC<{ element: WireframeElement }> = ({ element }) => {
     <div 
       className="w-full h-full flex items-center overflow-hidden p-2"
       style={{ 
-        fontSize: `${fontSize}px`, 
-        fontWeight, 
-        color,
-        textAlign: textAlign as any
+        fontSize: `${Number(fontSize)}px`, 
+        fontWeight: fontWeight as FontWeightType, 
+        color: color as string,
+        textAlign: textAlign as TextAlignType
       }}
     >
-      {content}
+      {content?.toString() || 'Text content'}
     </div>
   );
 };
@@ -109,25 +121,31 @@ const InputElement: React.FC<{ element: WireframeElement }> = ({ element }) => {
 const ImageElement: React.FC<{ element: WireframeElement }> = ({ element }) => {
   const { 
     src = '', 
-    alt = 'Image placeholder',
+    alt = 'Image', 
     objectFit = 'cover'
   } = element.properties;
   
+  // For the Image component display, we'll use a placeholder div instead when no valid src
+  const hasValidSrc = typeof src === 'string' && src.length > 0;
+  
   return (
     <div className="w-full h-full flex items-center justify-center bg-gray-100">
-      {src ? (
-        <img
+      {hasValidSrc ? (
+        <Image
           src={src as string}
-          alt={alt as string}
+          alt={typeof alt === 'string' ? alt : 'Image'}
+          fill
           className="w-full h-full"
-          style={{ objectFit: objectFit as any }}
+          style={{ objectFit: objectFit as ObjectFitType }}
         />
       ) : (
         <div className="flex flex-col items-center justify-center text-gray-400">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          <svg className="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="8.5" cy="8.5" r="1.5" strokeWidth="0" fill="currentColor"/>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 15l-5-5L5 21"/>
           </svg>
-          <span className="text-xs mt-2">Image</span>
+          <span className="text-xs">Image Placeholder</span>
         </div>
       )}
     </div>

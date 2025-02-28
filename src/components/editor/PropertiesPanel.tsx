@@ -13,7 +13,14 @@ import {
 
 // Common properties for all elements
 const CommonProperties: React.FC = () => {
-  const { project, selectedElementId, updateElement, resizeElement, moveElement, removeElement, duplicateElement } = useEditorStore();
+  const { 
+    project, 
+    selectedElementId, 
+    resizeElement, 
+    moveElement, 
+    removeElement, 
+    duplicateElement 
+  } = useEditorStore();
   
   const selectedElement = project.elements.find(el => el.id === selectedElementId);
   if (!selectedElement) return null;
@@ -149,14 +156,14 @@ const TextProperties: React.FC = () => {
   const selectedElement = project.elements.find(el => el.id === selectedElementId);
   if (!selectedElement) return null;
   
-  const { content, fontSize, fontWeight, color } = selectedElement.properties;
+  const { content = '', fontSize = 16, fontWeight = 'normal', color = '#000000' } = selectedElement.properties;
   
   return (
     <div className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Text Content</label>
         <textarea
-          value={content}
+          value={typeof content === 'string' ? content : String(content ?? '')}
           onChange={(e) => updateElementProperties(selectedElement.id, { content: e.target.value })}
           className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
           rows={3}
@@ -167,7 +174,7 @@ const TextProperties: React.FC = () => {
         <label className="block text-sm font-medium text-gray-700 mb-1">Font Size (px)</label>
         <input
           type="number"
-          value={fontSize}
+          value={typeof fontSize === 'number' ? fontSize : Number(fontSize ?? 16)}
           onChange={(e) => updateElementProperties(selectedElement.id, { fontSize: parseInt(e.target.value) || 12 })}
           min={8}
           className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
@@ -177,7 +184,7 @@ const TextProperties: React.FC = () => {
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Font Weight</label>
         <select
-          value={fontWeight}
+          value={typeof fontWeight === 'string' ? fontWeight : String(fontWeight ?? 'normal')}
           onChange={(e) => updateElementProperties(selectedElement.id, { fontWeight: e.target.value })}
           className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
         >
@@ -191,7 +198,7 @@ const TextProperties: React.FC = () => {
         <label className="block text-sm font-medium text-gray-700 mb-1">Text Color</label>
         <input
           type="color"
-          value={color}
+          value={typeof color === 'string' ? color : String(color ?? '#000000')}
           onChange={(e) => updateElementProperties(selectedElement.id, { color: e.target.value })}
           className="w-full border border-gray-300 rounded px-2 py-1 text-sm h-8"
         />
@@ -205,7 +212,19 @@ const ButtonProperties: React.FC = () => {
   const selectedElement = project.elements.find(el => el.id === selectedElementId);
   if (!selectedElement) return null;
   
-  const { label, variant, size, borderRadius } = selectedElement.properties;
+  // Extract properties with defaults
+  const { 
+    label = 'Button', 
+    variant = 'primary', 
+    size = 'md', 
+    borderRadius = 4 
+  } = selectedElement.properties;
+  
+  // Create safe values with type assertions
+  const safeLabel = (typeof label === 'string' ? label : 'Button') as string;
+  const safeVariant = (typeof variant === 'string' ? variant : 'primary') as string;
+  const safeSize = (typeof size === 'string' ? size : 'md') as string;
+  const safeBorderRadius = (typeof borderRadius === 'number' ? borderRadius : 4) as number;
   
   return (
     <div className="space-y-4">
@@ -213,7 +232,7 @@ const ButtonProperties: React.FC = () => {
         <label className="block text-sm font-medium text-gray-700 mb-1">Button Text</label>
         <input
           type="text"
-          value={label}
+          value={safeLabel}
           onChange={(e) => updateElementProperties(selectedElement.id, { label: e.target.value })}
           className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
         />
@@ -222,7 +241,7 @@ const ButtonProperties: React.FC = () => {
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Button Variant</label>
         <select
-          value={variant}
+          value={safeVariant}
           onChange={(e) => updateElementProperties(selectedElement.id, { variant: e.target.value })}
           className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
         >
@@ -236,7 +255,7 @@ const ButtonProperties: React.FC = () => {
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Button Size</label>
         <select
-          value={size}
+          value={safeSize}
           onChange={(e) => updateElementProperties(selectedElement.id, { size: e.target.value })}
           className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
         >
@@ -250,7 +269,7 @@ const ButtonProperties: React.FC = () => {
         <label className="block text-sm font-medium text-gray-700 mb-1">Border Radius</label>
         <input
           type="number"
-          value={borderRadius}
+          value={safeBorderRadius}
           onChange={(e) => updateElementProperties(selectedElement.id, { borderRadius: parseInt(e.target.value) || 0 })}
           min={0}
           className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
@@ -258,13 +277,6 @@ const ButtonProperties: React.FC = () => {
       </div>
     </div>
   );
-};
-
-// Map element types to their property editors
-const PROPERTY_EDITORS: Partial<Record<ElementType, React.ComponentType>> = {
-  'text': TextProperties,
-  'button': ButtonProperties,
-  // Add more specialized property editors for other element types
 };
 
 // Main properties panel component

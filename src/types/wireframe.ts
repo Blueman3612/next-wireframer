@@ -18,12 +18,16 @@ export interface Size {
   height: number;
 }
 
+// Define our property types consistently with editorStore
+export type ElementPropertyValue = string | number | boolean | null | string[];
+export type ElementProperties = Record<string, ElementPropertyValue>;
+
 export interface WireframeElement {
   id: string;
   type: ElementType;
   position: Position;
   size: Size;
-  properties: Record<string, any>;
+  properties: ElementProperties;
   children?: WireframeElement[];
 }
 
@@ -40,5 +44,5 @@ export interface ElementTemplate {
   name: string;
   icon: string;
   defaultSize: Size;
-  defaultProperties: Record<string, any>;
+  defaultProperties: ElementProperties;
 } 

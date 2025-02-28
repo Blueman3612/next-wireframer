@@ -1,14 +1,13 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Draggable from 'react-draggable';
 import { useEditorStore } from '@/store/editorStore';
 import { WireframeElement } from '@/types/wireframe';
 
 // Fix the import
 // Import renderElementContent directly from the file
-// @ts-ignore
-import { renderElementContent } from './ElementRenderer';
+import { renderElementContent } from '@/components/editor/ElementRenderer';
 
 interface WireframeElementProps {
   element: WireframeElement;
@@ -34,7 +33,7 @@ export const DraggableElement: React.FC<WireframeElementProps> = ({ element }) =
     selectElement(element.id);
   };
 
-  const handleDragStop = (_e: any, data: { x: number; y: number }) => {
+  const handleDragStop = (_e: unknown, data: { x: number; y: number }) => {
     setIsDragging(false);
     moveElement(element.id, { x: data.x, y: data.y });
   };
@@ -52,7 +51,8 @@ export const DraggableElement: React.FC<WireframeElementProps> = ({ element }) =
     setInitialSize(element.size);
   };
 
-  const handleResizeMove = (e: MouseEvent) => {
+  // Use useCallback to memoize the resize function
+  const handleResizeMove = useCallback((e: MouseEvent) => {
     if (!resizing) return;
     
     const deltaX = e.clientX - resizeStart.x;
@@ -62,7 +62,7 @@ export const DraggableElement: React.FC<WireframeElementProps> = ({ element }) =
     const newHeight = Math.max(initialSize.height + deltaY, 20);
     
     resizeElement(element.id, { width: newWidth, height: newHeight });
-  };
+  }, [resizing, resizeStart, initialSize, element.id, resizeElement]);
 
   const handleResizeEnd = () => {
     setResizing(false);
@@ -77,7 +77,7 @@ export const DraggableElement: React.FC<WireframeElementProps> = ({ element }) =
         window.removeEventListener('mouseup', handleResizeEnd);
       };
     }
-  }, [resizing, resizeStart, initialSize, element.id, resizeElement]);
+  }, [resizing, handleResizeMove]);
 
   // The nodeRef is properly typed as RefObject<HTMLDivElement>
   // but Draggable expects a RefObject<HTMLElement>
